@@ -2,6 +2,8 @@
 
 const { Stage, Status } = require('allure-js-commons');
 
+const { extractMetadataFromString } = require('allure-js-commons/sdk');
+
 const {
     createDefaultWriter,
     ReporterRuntime,
@@ -17,7 +19,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
 
     const log = logger.create('KarmaAllureReporter');
 
-    const { resultsDir = 'allure-results', ...restOptions } = config.allureReporter || {};
+    const { resultsDir = 'allure-results', ...restOptions } = config || {};
 
     const allureRuntime = new ReporterRuntime({
         writer: createDefaultWriter({ resultsDir }),
@@ -30,9 +32,23 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
     this.onSpecComplete = function (browser, result) {
         log.debug('Spec complete: ', result);
 
+        // Extract metadata from the test description
+        const metadata = extractMetadataFromString(result.description);
+
         const testName = result.description; // Represents the `it` test name
         const packageName = result.suite.join('.'); // Concatenated `describe` texts separated by '.'
-        const parentSuite = result.suite.join(' - '); // Concatenated `describe` texts separated by '-'
+        const parentSuite = result.suite.join(' > '); // Concatenated `describe` texts separated by ' > '
+
+        // Determine suite and subSuite labels dynamically
+        let suiteLabel = undefined;
+        let subSuiteLabel = undefined;
+
+        if (result.suite.length === 2) {
+            suiteLabel = result.suite[1]; // Add the second element as the suite label
+        } else if (result.suite.length > 2) {
+            suiteLabel = result.suite[1]; // The second element is the suite
+            subSuiteLabel = result.suite.slice(2).join(' > '); // Concatenate the rest as subSuite
+        }
 
         // Retrieve global and initial labels
         const globalLabels = getEnvironmentLabels().filter((label) => !!label.value);
@@ -47,22 +63,29 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
             const scopeUuid = allureRuntime.startScope();
             scopeStack.push(scopeUuid);
 
-            currentTestUuid = allureRuntime.startTest(
-                {
-                    name: testName,
-                    fullName: `${parentSuite} - ${testName}`,
-                    stage: Stage.RUNNING,
-                    labels: [
-                        ...globalLabels,
-                        ...initialLabels,
-                        { name: 'browser', value: browser.name }, // Add the browser label
-                        { name: 'package', value: packageName }, // Add the package name label
-                        { name: 'parentSuite', value: parentSuite }, // Add the parent suite label
-                        { name: 'suite', value: testName }, // Add the suite label
-                    ],
-                },
-                scopeStack
-            );
+            const currentTestResult = {
+                name: metadata.cleanTitle || testName,
+                fullName: `${parentSuite} > ${testName}`,
+                stage: Stage.RUNNING,
+                labels: [
+                    ...globalLabels,
+                    ...initialLabels,
+                    ...metadata.labels,
+                    { name: 'browser', value: browser.name }, // Add the browser label
+                    { name: 'package', value: packageName }, // Add the package name label
+                    { name: 'parentSuite', value: result.suite[0] }, // Add the first element as the parent suite
+                ],
+            };
+
+            // Add suite and subSuite labels conditionally
+            if (suiteLabel) {
+                currentTestResult.labels.push({ name: 'suite', value: suiteLabel });
+            }
+            if (subSuiteLabel) {
+                currentTestResult.labels.push({ name: 'subSuite', value: subSuiteLabel });
+            }
+
+            currentTestUuid = allureRuntime.startTest(currentTestResult, scopeStack);
         }
 
         // Update the test status and details
@@ -80,7 +103,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
             } else {
                 test.status = Status.FAILED;
                 test.statusDetails = {
-                    message: 'Test failed',
+                    message: 'Test failed. See the stack trace for details',
                     trace: result.log.join('\n'),
                 };
             }
@@ -118,6 +141,6 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
     }
 }
 
-KarmaAllureReporter.$inject = ['baseReporterDecorator', 'config', 'logger'];
+KarmaAllureReporter.$inject = ['baseReporterDecorator', 'config.allureReporter', 'logger'];
 
 module.exports = KarmaAllureReporter;

@@ -49,7 +49,7 @@ describe('KarmaAllureReporter', () => {
     });
 
     it('should use custom results directory if provided', () => {
-      const customConfig = { allureReporter: { resultsDir: 'custom-results' } };
+      const customConfig = { resultsDir: 'custom-results' };
       new KarmaAllureReporter(baseReporterDecorator, customConfig, logger);
 
       expect(ReporterRuntime).toHaveBeenCalledWith(
@@ -88,7 +88,7 @@ describe('KarmaAllureReporter', () => {
       expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'should pass',
-          fullName: 'My Suite - should pass',
+          fullName: 'My Suite > should pass',
           stage: 'running',
         }),
         expect.any(Array)
@@ -139,7 +139,7 @@ describe('KarmaAllureReporter', () => {
       updateCallback(test);
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
-      expect(test.statusDetails.message).toEqual('Test failed');
+      expect(test.statusDetails.message).toEqual('Test failed. See the stack trace for details');
       expect(test.statusDetails.trace).toEqual('Test error');
     });
   });
