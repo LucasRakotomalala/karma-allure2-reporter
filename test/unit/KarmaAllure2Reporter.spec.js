@@ -1,56 +1,72 @@
-const mockery = require('mockery');
+const { ReporterRuntime, createDefaultWriter } = require('allure-js-commons/sdk/reporter');
+const KarmaAllureReporter = require(`${process.cwd()}/src/KarmaAllure2Reporter.js`);
+
+jest.mock('allure-js-commons/sdk/reporter', () => ({
+  ReporterRuntime: jest.fn(),
+  createDefaultWriter: jest.fn(() => jest.fn()),
+  getEnvironmentLabels: jest.fn(() => [{ name: 'os', value: 'Linux' }]),
+  getLanguageLabel: jest.fn(() => ({ name: 'language', value: 'javascript' })),
+  getFrameworkLabel: jest.fn(() => ({ name: 'framework', value: 'karma' })),
+  getHostLabel: jest.fn(() => ({ name: 'host', value: 'localhost' })),
+  getThreadLabel: jest.fn(() => ({ name: 'thread', value: '12345' })),
+}));
 
 describe('KarmaAllureReporter', () => {
-  let baseReporterDecorator, config, logger, ReporterRuntime, allureRuntimeMock, Reporter;
+  let baseReporterDecorator, config, logger, allureRuntimeMock;
 
   beforeEach(() => {
-    mockery.enable({ useCleanCache: true });
-    mockery.warnOnUnregistered(false);
+    // Mock ReporterRuntime instance
+    allureRuntimeMock = {
+      startScope: jest.fn(),
+      startTest: jest.fn(),
+      updateTest: jest.fn(),
+      stopTest: jest.fn(),
+      writeTest: jest.fn(),
+      writeScope: jest.fn(),
+    };
 
-    // Mock allure-js-commons dependencies
-    ReporterRuntime = jasmine.createSpy('ReporterRuntime');
-    allureRuntimeMock = jasmine.createSpyObj('allureRuntime', [
-      'startScope',
-      'startTest',
-      'updateTest',
-      'stopTest',
-      'writeTest',
-      'writeScope',
-    ]);
+    // Replace ReporterRuntime constructor to return our mock
+    ReporterRuntime.mockImplementation(() => allureRuntimeMock);
 
-    ReporterRuntime.and.returnValue(allureRuntimeMock);
+    baseReporterDecorator = jest.fn();
+    config = { allureReporter: { resultsDir: 'allure-results' } };
+    logger = {
+      create: jest.fn(() => ({ debug: jest.fn() })),
+    };
+  });
 
-    mockery.registerMock('allure-js-commons/sdk/reporter', {
-      ReporterRuntime,
-      createDefaultWriter: jasmine.createSpy('createDefaultWriter').and.returnValue(() => {}),
-      getEnvironmentLabels: jasmine.createSpy('getEnvironmentLabels').and.returnValue([
-        { name: 'os', value: 'Linux' },
-      ]),
-      getLanguageLabel: jasmine.createSpy('getLanguageLabel').and.returnValue({ name: 'language', value: 'JavaScript' }),
-      getFrameworkLabel: jasmine.createSpy('getFrameworkLabel').and.returnValue({ name: 'framework', value: 'karma' }),
-      getHostLabel: jasmine.createSpy('getHostLabel').and.returnValue({ name: 'host', value: 'localhost' }),
-      getThreadLabel: jasmine.createSpy('getThreadLabel').and.returnValue({ name: 'thread', value: '12345' }),
+  describe('Initialization', () => {
+    it('should initialize allure runtime with default config', () => {
+      new KarmaAllureReporter(baseReporterDecorator, {}, logger);
+
+      expect(ReporterRuntime).toHaveBeenCalledWith(
+        expect.objectContaining({
+          writer: expect.any(Function),
+        })
+      );
+
+      expect(createDefaultWriter).toHaveBeenCalledWith({ resultsDir: 'allure-results' });
     });
 
-    Reporter = require(`${process.cwd()}/src/KarmaAllure2Reporter.js`);
-  });
+    it('should use custom results directory if provided', () => {
+      const customConfig = { allureReporter: { resultsDir: 'custom-results' } };
+      new KarmaAllureReporter(baseReporterDecorator, customConfig, logger);
 
-  afterEach(() => {
-    mockery.deregisterAll();
-    mockery.disable();
-  });
+      expect(ReporterRuntime).toHaveBeenCalledWith(
+        expect.objectContaining({
+          writer: expect.any(Function),
+        })
+      );
 
-  beforeEach(() => {
-    baseReporterDecorator = jasmine.createSpy('decorator');
-    config = { allureReporter: { resultsDir: 'allure-results' } };
-    logger = { create: jasmine.createSpy('logger').and.returnValue(jasmine.createSpyObj('log', ['debug'])) };
+      expect(createDefaultWriter).toHaveBeenCalledWith({ resultsDir: 'custom-results' });
+    });
   });
 
   describe('onSpecComplete', () => {
     let reporter, browserMock, resultMock;
 
     beforeEach(() => {
-      reporter = new Reporter(baseReporterDecorator, config, logger);
+      reporter = new KarmaAllureReporter(baseReporterDecorator, config, logger);
 
       browserMock = { name: 'Chrome' };
       resultMock = {
@@ -63,29 +79,29 @@ describe('KarmaAllureReporter', () => {
     });
 
     it('should start a new test on spec complete', () => {
-      allureRuntimeMock.startScope.and.returnValue('scope-uuid');
-      allureRuntimeMock.startTest.and.returnValue('test-uuid');
+      allureRuntimeMock.startScope.mockReturnValue('scope-uuid');
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
       expect(allureRuntimeMock.startScope).toHaveBeenCalledTimes(1);
       expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           name: 'should pass',
           fullName: 'My Suite should pass',
           stage: 'running',
         }),
-        jasmine.any(Array)
+        expect.any(Array)
       );
     });
 
     it('should update test status as passed', () => {
-      allureRuntimeMock.startTest.and.returnValue('test-uuid');
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
-      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', jasmine.any(Function));
-      const updateCallback = allureRuntimeMock.updateTest.calls.argsFor(0)[1];
+      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+      const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {};
       updateCallback(test);
       expect(test.status).toEqual('passed');
@@ -95,12 +111,12 @@ describe('KarmaAllureReporter', () => {
     it('should update test status as skipped', () => {
       resultMock.success = false;
       resultMock.skipped = true;
-      allureRuntimeMock.startTest.and.returnValue('test-uuid');
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
-      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', jasmine.any(Function));
-      const updateCallback = allureRuntimeMock.updateTest.calls.argsFor(0)[1];
+      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+      const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {};
       updateCallback(test);
       expect(test.status).toEqual('skipped');
@@ -111,17 +127,26 @@ describe('KarmaAllureReporter', () => {
       resultMock.success = false;
       resultMock.skipped = false;
       resultMock.log = ['Test error'];
-      allureRuntimeMock.startTest.and.returnValue('test-uuid');
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
-      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', jasmine.any(Function));
-      const updateCallback = allureRuntimeMock.updateTest.calls.argsFor(0)[1];
+      expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+      const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {};
       updateCallback(test);
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
       expect(test.statusDetails.message).toEqual('Test error');
+    });
+  });
+
+  describe('onRunComplete', () => {
+    it('should finalize all scopes', () => {
+      const reporter = new KarmaAllureReporter(baseReporterDecorator, config, logger);
+      reporter.onRunComplete();
+
+      expect(allureRuntimeMock.writeScope).toHaveBeenCalledTimes(0);
     });
   });
 });
