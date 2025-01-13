@@ -1,0 +1,27 @@
+{
+    "name": "karma-allure-reporter",
+    "version": "3.0.8",
+    "description": "A Karma reporter for generating Allure test results.",
+    "main": "index.js",
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:LucasRakotomalala/karma-allure2-reporter.git"
+    },
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "build": "npm install"
+    },
+    "keywords": [
+      "karma-plugin",
+      "karma-reporter",
+      "allure"
+    ],
+    "author": "Lucas Rakotomalala",
+    "license": "MIT",
+    "dependencies": {
+      "allure-js-commons": "3.0.8"
+    },
+    "peerDependencies": {
+      "karma": ">=6.0.0"
+    }
+  }
