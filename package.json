@@ -1,11 +1,11 @@
 {
-    "name": "karma-allure-reporter",
+    "name": "karma-allure2-reporter",
     "version": "3.0.8",
     "description": "A Karma reporter for generating Allure 2 test results.",
     "main": "index.js",
     "repository": {
         "type": "git",
-        "url": "git@github.com:LucasRakotomalala/karma-allure2-reporter.git"
+        "url": "git+ssh://git@github.com/LucasRakotomalala/karma-allure2-reporter.git"
     },
     "scripts": {
         "test": "npm run test:unit",
@@ -14,7 +14,8 @@
     "keywords": [
         "karma-plugin",
         "karma-reporter",
-        "allure"
+        "allure",
+        "allure2"
     ],
     "author": "Lucas Rakotomalala",
     "license": "MIT",
