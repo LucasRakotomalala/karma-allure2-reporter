@@ -1,27 +1,34 @@
 {
     "name": "karma-allure-reporter",
     "version": "3.0.8",
-    "description": "A Karma reporter for generating Allure test results.",
+    "description": "A Karma reporter for generating Allure 2 test results.",
     "main": "index.js",
     "repository": {
-      "type": "git",
-      "url": "git@github.com:LucasRakotomalala/karma-allure2-reporter.git"
+        "type": "git",
+        "url": "git@github.com:LucasRakotomalala/karma-allure2-reporter.git"
     },
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "build": "npm install"
+        "test": "npm run test:unit",
+        "test:unit": "jasmine --config=test/unit/jasmine.json"
     },
     "keywords": [
-      "karma-plugin",
-      "karma-reporter",
-      "allure"
+        "karma-plugin",
+        "karma-reporter",
+        "allure"
     ],
     "author": "Lucas Rakotomalala",
     "license": "MIT",
     "dependencies": {
-      "allure-js-commons": "3.0.8"
+        "allure-js-commons": "3.0.8"
     },
     "peerDependencies": {
-      "karma": ">=6.0.0"
+        "karma": ">=6.0.0"
+    },
+    "devDependencies": {
+        "jasmine": "5.5.0",
+        "mockery": "2.1.0"
+    },
+    "engines": {
+        "node": ">=10.0.0"
     }
-  }
+}
