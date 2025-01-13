@@ -13,6 +13,8 @@ const {
 } = require('allure-js-commons/sdk/reporter');
 
 function KarmaAllureReporter(baseReporterDecorator, config, logger) {
+  baseReporterDecorator(this);
+
   const log = logger.create('KarmaAllureReporter');
 
   const { resultsDir = 'allure-results', ...restOptions } = config.allureReporter || {};
@@ -22,10 +24,8 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
     ...restOptions
   });
 
-  let currentTestUuid = null;
+  let currentTestUuid = undefined;
   const scopeStack = [];
-
-  baseReporterDecorator(this);
 
   this.onSpecComplete = function (browser, result) {
     log.debug('Spec complete: ', result);
@@ -67,17 +67,16 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
 
     // Update the test status and details
     allureRuntime.updateTest(currentTestUuid, (test) => {
-      if (result.success) {
-        test.status = Status.PASSED;
-        test.stage = Stage.FINISHED;
-      } else if (result.skipped) {
+      test.stage = Stage.FINISHED;
+
+      if (result.skipped) {
         test.status = Status.SKIPPED;
-        test.stage = Stage.PENDING;
         test.statusDetails = {
           message: 'Test skipped',
         };
+      } else if (result.success) {
+        test.status = Status.PASSED;
       } else {
-        test.status = Status.FAILED;
         test.stage = Stage.FINISHED;
         test.statusDetails = {
           message: result.log.join('\n'),
@@ -96,7 +95,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
     if (currentTestUuid) {
       allureRuntime.stopTest(currentTestUuid);
       allureRuntime.writeTest(currentTestUuid);
-      currentTestUuid = null;
+      currentTestUuid = undefined;
     }
 
     const scopeUuid = scopeStack.pop();
@@ -113,7 +112,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
   }
 
   function getFrameworkName() {
-    return 'karma'; // Returns the name of the testing framework
+    return 'jasmine'; // Returns the name of the testing framework
   }
 }
 
