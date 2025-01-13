@@ -31,8 +31,8 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
         log.debug('Spec complete: ', result);
 
         const testName = result.description; // Represents the `it` test name
-        const parentSuite = result.suite.join(' - '); // Concatenated `describe` texts separated by '-'
         const packageName = result.suite.join('.'); // Concatenated `describe` texts separated by '.'
+        const parentSuite = result.suite.join(' - '); // Concatenated `describe` texts separated by '-'
 
         // Retrieve global and initial labels
         const globalLabels = getEnvironmentLabels().filter((label) => !!label.value);
