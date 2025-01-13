@@ -77,7 +77,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
             } else if (result.success) {
                 test.status = Status.PASSED;
             } else {
-                test.stage = Stage.FINISHED;
+                test.status = Status.FAILED;
                 test.statusDetails = {
                     message: result.log.join('\n'),
                 };
