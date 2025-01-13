@@ -88,7 +88,7 @@ describe('KarmaAllureReporter', () => {
       expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'should pass',
-          fullName: 'My Suite should pass',
+          fullName: 'My Suite - should pass',
           stage: 'running',
         }),
         expect.any(Array)
@@ -121,6 +121,8 @@ describe('KarmaAllureReporter', () => {
       updateCallback(test);
       expect(test.status).toEqual('skipped');
       expect(test.stage).toEqual('finished');
+      expect(test.statusDetails.message).toEqual('Test skipped');
+      expect(test.statusDetails.trace).toEqual('Test execution was skipped by either \'xdescribe\' or \'xit\'');
     });
 
     it('should update test status as failed', () => {
@@ -137,7 +139,8 @@ describe('KarmaAllureReporter', () => {
       updateCallback(test);
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
-      expect(test.statusDetails.message).toEqual('Test error');
+      expect(test.statusDetails.message).toEqual('Test failed');
+      expect(test.statusDetails.trace).toEqual('Test error');
     });
   });
 

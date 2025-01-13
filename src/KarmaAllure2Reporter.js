@@ -50,7 +50,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
             currentTestUuid = allureRuntime.startTest(
                 {
                     name: testName,
-                    fullName: `${parentSuite} ${testName}`,
+                    fullName: `${parentSuite} - ${testName}`,
                     stage: Stage.RUNNING,
                     labels: [
                         ...globalLabels,
@@ -73,13 +73,15 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
                 test.status = Status.SKIPPED;
                 test.statusDetails = {
                     message: 'Test skipped',
+                    trace: 'Test execution was skipped by either \'xdescribe\' or \'xit\'',
                 };
             } else if (result.success) {
                 test.status = Status.PASSED;
             } else {
                 test.status = Status.FAILED;
                 test.statusDetails = {
-                    message: result.log.join('\n'),
+                    message: 'Test failed',
+                    trace: result.log.join('\n'),
                 };
             }
         });
@@ -112,7 +114,7 @@ function KarmaAllureReporter(baseReporterDecorator, config, logger) {
     }
 
     function getFrameworkName() {
-        return 'jasmine'; // Returns the name of the testing framework
+        return 'jasmine';
     }
 }
 
