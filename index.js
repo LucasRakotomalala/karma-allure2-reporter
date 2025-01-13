@@ -3,5 +3,5 @@
 const AllureReporter = require('./src/KarmaAllureReporter');
 
 module.exports = {
-  'reporter:allure': ['type', AllureReporter]
+    'reporter:allure': ['type', AllureReporter]
 };
