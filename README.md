@@ -34,6 +34,6 @@ module.exports = function (config) {
 
 For more information on Karma see the [homepage].
 
-[Allure]: https://github.com/allure-framework/allure2
+[Allure 2]: https://github.com/allure-framework/allure2
 [Allure Report Documentation]: https://allurereport.org/docs/
 [homepage]: https://karma-runner.github.io
