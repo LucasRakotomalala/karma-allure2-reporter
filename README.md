@@ -24,7 +24,7 @@ For configuration details see [Allure Report Documentation](https://allurereport
 module.exports = function (config) {
   config.set({
     allureReporter: {
-      resultsDir: 'allure-results', // output directory for the allure report - can be omitted (default: allure-results)
+      resultsDir: 'allure-results' // output directory for the allure report - can be omitted (default: allure-results)
     },
   });
 };
@@ -39,7 +39,7 @@ module.exports = function (config) {
     allureReporter: {
       customOptions: {
         projectLanguage: 'javascript', // by default 'javascript'
-        testFramework: 'jasmine', // by default 'jasmine'
+        testFramework: 'jasmine' // by default 'jasmine'
       },
     },
   });

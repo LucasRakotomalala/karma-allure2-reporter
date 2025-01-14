@@ -64,7 +64,7 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
       getLanguageLabel(),
       getFrameworkLabel(testFramework),
       getHostLabel(),
-      getThreadLabel(pid), // Use the current process ID for the thread label
+      getThreadLabel(`${pid}`), // Use the current process ID for the thread label
     ];
 
     if (projectLanguage) {
