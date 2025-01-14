@@ -1,6 +1,6 @@
 {
     "name": "karma-allure2-reporter",
-    "version": "3.0.8-beta.1",
+    "version": "3.0.8-beta.2",
     "description": "A Karma reporter for generating Allure 2 test results.",
     "main": "index.js",
     "repository": {
