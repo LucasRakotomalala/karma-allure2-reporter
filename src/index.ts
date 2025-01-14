@@ -1,12 +1,6 @@
-'use strict';
-
-const { pid } = require('node:process');
-
-const { Stage, Status } = require('allure-js-commons');
-
-const { extractMetadataFromString } = require('allure-js-commons/sdk');
-
-const {
+import { pid } from 'node:process';
+import { Stage, Status } from 'allure-js-commons';
+import {
   createDefaultWriter,
   ReporterRuntime,
   getEnvironmentLabels,
@@ -14,58 +8,56 @@ const {
   getFrameworkLabel,
   getHostLabel,
   getThreadLabel,
-} = require('allure-js-commons/sdk/reporter');
+} from 'allure-js-commons/sdk/reporter';
+import { extractMetadataFromString } from 'allure-js-commons/sdk';
+import { KarmaAllure2ReporterConfig } from './model';
+import { getDefaultAllureResultsDir, getDefaultFrameworkName } from './utils';
 
-const { getDefaultAllureResultsDir, getDefaultFrameworkName } = require('./utils');
-
-function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
+function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2ReporterConfig, logger: any): void {
   baseReporterDecorator(this);
 
   const log = logger.create('KarmaAllure2Reporter');
 
   const { resultsDir = getDefaultAllureResultsDir(), customOptions, ...reporterOptions } = config || {};
+
   const { projectLanguage, testFramework = getDefaultFrameworkName() } = customOptions || {};
 
   const allureRuntime = new ReporterRuntime({
     writer: createDefaultWriter({ resultsDir }),
-    ...reporterOptions
+    ...reporterOptions,
   });
 
-  const scopeStack = [];
-  let currentTestUuid = undefined;
+  const scopeStack: Array<string> = [];
+  let currentTestUuid: string | undefined;
 
-  this.onSpecComplete = function (browser, result) {
+  this.onSpecComplete = (browser: { name: string }, result: any): void => {
     log.debug('Spec complete: ', result);
 
-    // Extract the description and suite from the test result
     const { description: resultDescription, suite: resultSuite = [] } = result || {};
-
-    // Extract metadata from the test description
     const metadata = extractMetadataFromString(resultDescription);
 
-    const testName = resultDescription; // Represents the `it` test name
-    const packageName = resultSuite.join('.'); // Concatenated `describe` texts separated by '.'
-    const parentSuite = resultSuite.join(' > '); // Concatenated `describe` texts separated by ' > '
+    const testName = resultDescription;
+    const packageName = resultSuite.join('.');
+    const parentSuite = resultSuite.join(' > ');
 
-    // Determine suite and subSuite labels dynamically
-    let suiteLabel = undefined;
-    let subSuiteLabel = undefined;
+    let suiteLabel: string | undefined;
+    let subSuiteLabel: string | undefined;
 
     if (resultSuite.length === 2) {
-      suiteLabel = resultSuite[1]; // Add the second element as the suite label
+      suiteLabel = resultSuite[1];
     } else if (resultSuite.length > 2) {
-      suiteLabel = resultSuite[1]; // The second element is the suite
-      subSuiteLabel = resultSuite.slice(2).join(' > '); // Concatenate the rest as subSuite
+      suiteLabel = resultSuite[1];
+      subSuiteLabel = resultSuite.slice(2).join(' > ');
     }
 
-    // Retrieve global and initial labels
     const globalLabels = getEnvironmentLabels()?.filter((label) => !!label.value) || [];
     const initialLabels = [
       getLanguageLabel(),
       getFrameworkLabel(testFramework),
       getHostLabel(),
-      getThreadLabel(`${pid}`), // Use the current process ID for the thread label
+      getThreadLabel(`${pid}`)
     ];
+
 
     if (projectLanguage) {
       const languageLabel = initialLabels.find((label) => label.name === 'language');
@@ -87,13 +79,12 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
           ...globalLabels,
           ...initialLabels,
           ...metadata?.labels || [],
-          { name: 'browser', value: browser.name }, // Add the browser label
-          { name: 'package', value: packageName }, // Add the package name label
-          { name: 'parentSuite', value: resultSuite[0] }, // Add the first element as the parent suite
+          { name: 'browser', value: browser.name },
+          { name: 'package', value: packageName },
+          { name: 'parentSuite', value: resultSuite[0] }
         ],
       };
 
-      // Add suite and subSuite labels conditionally
       if (suiteLabel) {
         currentTestResult.labels.push({ name: 'suite', value: suiteLabel });
       }
@@ -104,7 +95,6 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
       currentTestUuid = allureRuntime.startTest(currentTestResult, scopeStack);
     }
 
-    // Update the test status and details
     allureRuntime.updateTest(currentTestUuid, (test) => {
       test.stage = Stage.FINISHED;
 
@@ -128,11 +118,11 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
     finalizeTest();
   };
 
-  this.onRunComplete = function () {
+  this.onRunComplete = (): void => {
     finalizeScopes();
   };
 
-  function finalizeTest() {
+  function finalizeTest(): void {
     if (currentTestUuid) {
       allureRuntime.stopTest(currentTestUuid);
       allureRuntime.writeTest(currentTestUuid);
@@ -145,7 +135,7 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
     }
   }
 
-  function finalizeScopes() {
+  function finalizeScopes(): void {
     while (scopeStack.length > 0) {
       const scopeUuid = scopeStack.pop();
       allureRuntime.writeScope(scopeUuid);
@@ -155,4 +145,6 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
 
 KarmaAllure2Reporter.$inject = ['baseReporterDecorator', 'config.allureReporter', 'logger'];
 
-module.exports = KarmaAllure2Reporter;
+export default {
+  'reporter:allure': ['type', KarmaAllure2Reporter],
+};

@@ -1,7 +1,7 @@
-'use strict';
+import { ReporterRuntime, createDefaultWriter } from 'allure-js-commons/sdk/reporter';
+import KarmaAllure2ReporterPlugin from '../../src/index';
 
-const { ReporterRuntime, createDefaultWriter } = require('allure-js-commons/sdk/reporter');
-const KarmaAllure2Reporter = require(`${process.cwd()}/src/KarmaAllure2Reporter.js`);
+const KarmaAllure2Reporter = KarmaAllure2ReporterPlugin["reporter:allure"][1] as typeof KarmaAllure2Reporter;
 
 jest.mock('allure-js-commons/sdk/reporter', () => ({
   ReporterRuntime: jest.fn(),
@@ -14,7 +14,10 @@ jest.mock('allure-js-commons/sdk/reporter', () => ({
 }));
 
 describe('KarmaAllure2Reporter', () => {
-  let baseReporterDecorator, config, logger, allureRuntimeMock;
+  let baseReporterDecorator: jest.Mock;
+  let config: { resultsDir: string };
+  let logger: { create: jest.Mock };
+  let allureRuntimeMock: jest.Mocked<ReporterRuntime>;
 
   beforeEach(() => {
     // Mock ReporterRuntime instance
@@ -25,13 +28,13 @@ describe('KarmaAllure2Reporter', () => {
       stopTest: jest.fn(),
       writeTest: jest.fn(),
       writeScope: jest.fn(),
-    };
+    } as unknown as jest.Mocked<ReporterRuntime>;
 
     // Replace ReporterRuntime constructor to return our mock
-    ReporterRuntime.mockImplementation(() => allureRuntimeMock);
+    (ReporterRuntime as jest.Mock).mockImplementation(() => allureRuntimeMock);
 
     baseReporterDecorator = jest.fn();
-    config = { allureReporter: { resultsDir: 'allure-results' } };
+    config = { resultsDir: 'allure-results' };
     logger = {
       create: jest.fn(() => ({ debug: jest.fn() })),
     };
@@ -65,7 +68,9 @@ describe('KarmaAllure2Reporter', () => {
   });
 
   describe('onSpecComplete', () => {
-    let reporter, browserMock, resultMock;
+    let reporter: any;
+    let browserMock: { name: string };
+    let resultMock: { description: string; suite: string[]; log: string[]; success: boolean; skipped: boolean };
 
     beforeEach(() => {
       reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
@@ -104,7 +109,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test = {};
+      const test: any = {};
       updateCallback(test);
       expect(test.status).toEqual('passed');
       expect(test.stage).toEqual('finished');
@@ -119,7 +124,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test = {};
+      const test: any = {};
       updateCallback(test);
       expect(test.status).toEqual('skipped');
       expect(test.stage).toEqual('finished');
@@ -137,7 +142,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test = {};
+      const test: any = {};
       updateCallback(test);
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
