@@ -1,17 +1,19 @@
+'use strict';
+
 const { ReporterRuntime, createDefaultWriter } = require('allure-js-commons/sdk/reporter');
-const KarmaAllureReporter = require(`${process.cwd()}/src/KarmaAllure2Reporter.js`);
+const KarmaAllure2Reporter = require(`${process.cwd()}/src/KarmaAllure2Reporter.js`);
 
 jest.mock('allure-js-commons/sdk/reporter', () => ({
   ReporterRuntime: jest.fn(),
   createDefaultWriter: jest.fn(() => jest.fn()),
   getEnvironmentLabels: jest.fn(() => [{ name: 'os', value: 'Linux' }]),
   getLanguageLabel: jest.fn(() => ({ name: 'language', value: 'javascript' })),
-  getFrameworkLabel: jest.fn(() => ({ name: 'framework', value: 'karma' })),
+  getFrameworkLabel: jest.fn(() => ({ name: 'framework', value: 'jasmine' })),
   getHostLabel: jest.fn(() => ({ name: 'host', value: 'localhost' })),
   getThreadLabel: jest.fn(() => ({ name: 'thread', value: '12345' })),
 }));
 
-describe('KarmaAllureReporter', () => {
+describe('KarmaAllure2Reporter', () => {
   let baseReporterDecorator, config, logger, allureRuntimeMock;
 
   beforeEach(() => {
@@ -37,7 +39,7 @@ describe('KarmaAllureReporter', () => {
 
   describe('Initialization', () => {
     it('should initialize allure runtime with default config', () => {
-      new KarmaAllureReporter(baseReporterDecorator, {}, logger);
+      new KarmaAllure2Reporter(baseReporterDecorator, {}, logger);
 
       expect(ReporterRuntime).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -50,7 +52,7 @@ describe('KarmaAllureReporter', () => {
 
     it('should use custom results directory if provided', () => {
       const customConfig = { resultsDir: 'custom-results' };
-      new KarmaAllureReporter(baseReporterDecorator, customConfig, logger);
+      new KarmaAllure2Reporter(baseReporterDecorator, customConfig, logger);
 
       expect(ReporterRuntime).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -66,7 +68,7 @@ describe('KarmaAllureReporter', () => {
     let reporter, browserMock, resultMock;
 
     beforeEach(() => {
-      reporter = new KarmaAllureReporter(baseReporterDecorator, config, logger);
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
 
       browserMock = { name: 'Chrome' };
       resultMock = {
@@ -146,7 +148,7 @@ describe('KarmaAllureReporter', () => {
 
   describe('onRunComplete', () => {
     it('should finalize all scopes', () => {
-      const reporter = new KarmaAllureReporter(baseReporterDecorator, config, logger);
+      const reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
       reporter.onRunComplete();
 
       expect(allureRuntimeMock.writeScope).toHaveBeenCalledTimes(0);
