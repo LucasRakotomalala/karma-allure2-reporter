@@ -24,7 +24,23 @@ For configuration details see [Allure Report Documentation].
 module.exports = function (config) {
   config.set({
     allureReporter: {
-      resultsDir: 'allure-results' // output directory for the allure report - can be omitted (default: allure-results)
+      resultsDir: 'allure-results', // output directory for the allure report - can be omitted (default: allure-results)
+    },
+  });
+};
+```
+
+### Custom Configuration
+
+```javascript
+// karma.conf.js
+module.exports = function (config) {
+  config.set({
+    allureReporter: {
+      customOptions: {
+        projectLanguage: 'javascript', // by default 'javascript'
+        testFramework: 'jasmine', // by default 'jasmine'
+      },
     },
   });
 };

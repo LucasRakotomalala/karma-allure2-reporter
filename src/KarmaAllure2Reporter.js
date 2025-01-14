@@ -1,5 +1,7 @@
 'use strict';
 
+const { pid } = require('node:process');
+
 const { Stage, Status } = require('allure-js-commons');
 
 const { extractMetadataFromString } = require('allure-js-commons/sdk');
@@ -19,22 +21,22 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
 
   const log = logger.create('KarmaAllure2Reporter');
 
-  const { resultsDir = 'allure-results', customOptions, ...reporterOptions } = config || {};
-  const { language, framework = getFrameworkName() } = customOptions || {};
+  const { resultsDir = getDefaultAllureResultsDir(), customOptions, ...reporterOptions } = config || {};
+  const { projectLanguage, testFramework = getDefaultFrameworkName() } = customOptions || {};
 
   const allureRuntime = new ReporterRuntime({
     writer: createDefaultWriter({ resultsDir }),
     ...reporterOptions
   });
 
-  let currentTestUuid = undefined;
   const scopeStack = [];
+  let currentTestUuid = undefined;
 
   this.onSpecComplete = function (browser, result) {
     log.debug('Spec complete: ', result);
 
     // Extract the description and suite from the test result
-    const { description: resultDescription, suite: resultSuite = [] } = result;
+    const { description: resultDescription, suite: resultSuite = [] } = result || {};
 
     // Extract metadata from the test description
     const metadata = extractMetadataFromString(resultDescription);
@@ -58,16 +60,16 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
     const globalLabels = getEnvironmentLabels()?.filter((label) => !!label.value) || [];
     const initialLabels = [
       getLanguageLabel(),
-      getFrameworkLabel(framework),
+      getFrameworkLabel(testFramework),
       getHostLabel(),
-      getThreadLabel(process.pid), // Use the current process ID for the thread label
+      getThreadLabel(pid), // Use the current process ID for the thread label
     ];
 
-    if (language) {
+    if (projectLanguage) {
       const languageLabel = initialLabels.find((label) => label.name === 'language');
 
       if (languageLabel) {
-        languageLabel.value = language;
+        languageLabel.value = projectLanguage;
       }
     }
 
@@ -104,19 +106,19 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
     allureRuntime.updateTest(currentTestUuid, (test) => {
       test.stage = Stage.FINISHED;
 
-      if (result.skipped) {
+      if (result?.skipped) {
         test.status = Status.SKIPPED;
         test.statusDetails = {
           message: 'Test skipped',
           trace: 'Test execution was skipped by either \'xdescribe\' or \'xit\'',
         };
-      } else if (result.success) {
+      } else if (result?.success) {
         test.status = Status.PASSED;
       } else {
         test.status = Status.FAILED;
         test.statusDetails = {
           message: 'Test failed. See the stack trace for details',
-          trace: result.log?.join('\n') || 'No trace available',
+          trace: result?.log?.join('\n') || 'No trace available',
         };
       }
     });
@@ -148,7 +150,11 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
     }
   }
 
-  function getFrameworkName() {
+  function getDefaultAllureResultsDir() {
+    return 'allure-results';
+  }
+
+  function getDefaultFrameworkName() {
     return 'jasmine';
   }
 }
