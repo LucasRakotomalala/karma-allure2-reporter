@@ -16,6 +16,8 @@ const {
   getThreadLabel,
 } = require('allure-js-commons/sdk/reporter');
 
+const { getDefaultAllureResultsDir, getDefaultFrameworkName } = require('./utils');
+
 function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
   baseReporterDecorator(this);
 
@@ -148,14 +150,6 @@ function KarmaAllure2Reporter(baseReporterDecorator, config, logger) {
       const scopeUuid = scopeStack.pop();
       allureRuntime.writeScope(scopeUuid);
     }
-  }
-
-  function getDefaultAllureResultsDir() {
-    return 'allure-results';
-  }
-
-  function getDefaultFrameworkName() {
-    return 'jasmine';
   }
 }
 
