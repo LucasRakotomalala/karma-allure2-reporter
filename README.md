@@ -1,6 +1,6 @@
 # Karma Allure 2 Reporter
 
-> A Karma reporter for generating [Allure 2] test results.
+> A Karma reporter for generating [Allure 2](https://github.com/allure-framework/allure2) test results.
 
 ## Installation
 
@@ -13,7 +13,7 @@ npm install karma-allure2-reporter --save-dev
 
 ## Configuration
 
-For configuration details see [Allure Report Documentation].
+For configuration details see [Allure Report Documentation](https://allurereport.org/docs/).
 
 ## Examples
 
@@ -48,8 +48,4 @@ module.exports = function (config) {
 
 ---
 
-For more information on Karma see the [homepage].
-
-[Allure 2]: https://github.com/allure-framework/allure2
-[Allure Report Documentation]: https://allurereport.org/docs/
-[homepage]: https://karma-runner.github.io
+For more information on Karma see the [homepage](https://karma-runner.github.io).
