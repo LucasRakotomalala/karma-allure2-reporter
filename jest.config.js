@@ -6,5 +6,5 @@ export default {
     '^.+\\.ts$': 'ts-jest',
   },
   testMatch: ['**/*.test.ts'],
-  moduleDirectories: ['node_modules', 'src'],
+  moduleDirectories: ['node_modules', 'src']
 };

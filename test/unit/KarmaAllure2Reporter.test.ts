@@ -1,7 +1,7 @@
 import { ReporterRuntime, createDefaultWriter } from 'allure-js-commons/sdk/reporter';
 import KarmaAllure2ReporterPlugin from '../../src/index';
 
-const KarmaAllure2Reporter = KarmaAllure2ReporterPlugin["reporter:allure"][1] as typeof KarmaAllure2Reporter;
+const KarmaAllure2Reporter = KarmaAllure2ReporterPlugin['reporter:allure'][1] as typeof KarmaAllure2Reporter;
 
 jest.mock('allure-js-commons/sdk/reporter', () => ({
   ReporterRuntime: jest.fn(),
@@ -10,7 +10,7 @@ jest.mock('allure-js-commons/sdk/reporter', () => ({
   getLanguageLabel: jest.fn(() => ({ name: 'language', value: 'javascript' })),
   getFrameworkLabel: jest.fn(() => ({ name: 'framework', value: 'jasmine' })),
   getHostLabel: jest.fn(() => ({ name: 'host', value: 'localhost' })),
-  getThreadLabel: jest.fn(() => ({ name: 'thread', value: '12345' })),
+  getThreadLabel: jest.fn(() => ({ name: 'thread', value: '12345' }))
 }));
 
 describe('KarmaAllure2Reporter', () => {
@@ -27,7 +27,7 @@ describe('KarmaAllure2Reporter', () => {
       updateTest: jest.fn(),
       stopTest: jest.fn(),
       writeTest: jest.fn(),
-      writeScope: jest.fn(),
+      writeScope: jest.fn()
     } as unknown as jest.Mocked<ReporterRuntime>;
 
     // Replace ReporterRuntime constructor to return our mock
@@ -36,7 +36,7 @@ describe('KarmaAllure2Reporter', () => {
     baseReporterDecorator = jest.fn();
     config = { resultsDir: 'allure-results' };
     logger = {
-      create: jest.fn(() => ({ debug: jest.fn() })),
+      create: jest.fn(() => ({ debug: jest.fn() }))
     };
   });
 
@@ -46,7 +46,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(ReporterRuntime).toHaveBeenCalledWith(
         expect.objectContaining({
-          writer: expect.any(Function),
+          writer: expect.any(Function)
         })
       );
 
@@ -59,7 +59,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(ReporterRuntime).toHaveBeenCalledWith(
         expect.objectContaining({
-          writer: expect.any(Function),
+          writer: expect.any(Function)
         })
       );
 
@@ -81,7 +81,7 @@ describe('KarmaAllure2Reporter', () => {
         suite: ['My Suite'],
         log: [],
         success: true,
-        skipped: false,
+        skipped: false
       };
     });
 
@@ -96,7 +96,7 @@ describe('KarmaAllure2Reporter', () => {
         expect.objectContaining({
           name: 'should pass',
           fullName: 'My Suite > should pass',
-          stage: 'running',
+          stage: 'running'
         }),
         expect.any(Array)
       );

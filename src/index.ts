@@ -24,7 +24,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
 
   const allureRuntime = new ReporterRuntime({
     writer: createDefaultWriter({ resultsDir }),
-    ...reporterOptions,
+    ...reporterOptions
   });
 
   const scopeStack: Array<string> = [];
@@ -82,7 +82,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
           { name: 'browser', value: browser.name },
           { name: 'package', value: packageName },
           { name: 'parentSuite', value: resultSuite[0] }
-        ],
+        ]
       };
 
       if (suiteLabel) {
@@ -102,7 +102,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
         test.status = Status.SKIPPED;
         test.statusDetails = {
           message: 'Test skipped',
-          trace: 'Test execution was skipped by either \'xdescribe\' or \'xit\'',
+          trace: 'Test execution was skipped by either \'xdescribe\' or \'xit\''
         };
       } else if (result?.success) {
         test.status = Status.PASSED;
@@ -110,7 +110,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
         test.status = Status.FAILED;
         test.statusDetails = {
           message: 'Test failed. See the stack trace for details',
-          trace: result?.log?.join('\n') || 'No trace available',
+          trace: result?.log?.join('\n') || 'No trace available'
         };
       }
     });
@@ -146,5 +146,5 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
 KarmaAllure2Reporter.$inject = ['baseReporterDecorator', 'config.allureReporter', 'logger'];
 
 export default {
-  'reporter:allure': ['type', KarmaAllure2Reporter],
+  'reporter:allure': ['type', KarmaAllure2Reporter]
 };
