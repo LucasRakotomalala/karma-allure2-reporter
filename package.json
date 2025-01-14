@@ -1,34 +1,34 @@
 {
-    "name": "karma-allure2-reporter",
-    "version": "3.0.8-beta.2",
-    "description": "A Karma reporter for generating Allure 2 test results.",
-    "main": "index.js",
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@github.com/LucasRakotomalala/karma-allure2-reporter.git"
-    },
-    "scripts": {
-        "test": "npm run test:unit",
-        "test:unit": "jest"
-    },
-    "keywords": [
-        "karma-plugin",
-        "karma-reporter",
-        "allure",
-        "allure2"
-    ],
-    "author": "Lucas Rakotomalala",
-    "license": "MIT",
-    "dependencies": {
-        "allure-js-commons": "3.0.8"
-    },
-    "peerDependencies": {
-        "karma": ">=6.0.0"
-    },
-    "devDependencies": {
-        "jest": "29.7.0"
-    },
-    "engines": {
-        "node": ">=10.0.0"
-    }
+  "name": "karma-allure2-reporter",
+  "version": "3.0.8-beta.3",
+  "description": "A Karma reporter for generating Allure 2 test results.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/LucasRakotomalala/karma-allure2-reporter.git"
+  },
+  "scripts": {
+    "test": "npm run test:unit",
+    "test:unit": "jest"
+  },
+  "keywords": [
+    "karma-plugin",
+    "karma-reporter",
+    "allure",
+    "allure2"
+  ],
+  "author": "Lucas Rakotomalala",
+  "license": "MIT",
+  "dependencies": {
+    "allure-js-commons": "3.0.8"
+  },
+  "peerDependencies": {
+    "karma": ">=6.0.0"
+  },
+  "devDependencies": {
+    "jest": "29.7.0"
+  },
+  "engines": {
+    "node": ">=14.13.0"
+  }
 }
