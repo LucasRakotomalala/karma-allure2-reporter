@@ -16,11 +16,13 @@ import { getDefaultAllureResultsDir, getDefaultFrameworkName } from './utils';
 function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2ReporterConfig, logger: any): void {
   baseReporterDecorator(this);
 
-  const log = logger.create('KarmaAllure2Reporter');
+  const log = logger.create('allure2-reporter');
 
-  const { resultsDir = getDefaultAllureResultsDir(), customOptions, ...reporterOptions } = config || {};
+  const { resultsDir = getDefaultAllureResultsDir(), customOptions = {}, ...reporterOptions } = config || {};
+  log.debug('Allure 2 reporter results directory: ', resultsDir);
 
-  const { projectLanguage, testFramework = getDefaultFrameworkName() } = customOptions || {};
+  const { projectLanguage, testFramework = getDefaultFrameworkName() } = customOptions;
+  log.debug('Allure 2 reporter custom options: ', JSON.stringify(customOptions, undefined, 2));
 
   const allureRuntime = new ReporterRuntime({
     writer: createDefaultWriter({ resultsDir }),
@@ -31,8 +33,6 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
   let currentTestUuid: string | undefined;
 
   this.onSpecComplete = (browser: Browser, result: Partial<KarmaTestResult>): void => {
-    log.debug('Spec complete: ', result);
-
     const { description: resultDescription, suite: resultSuite = [] } = result || {};
     const metadata = extractMetadataFromString(resultDescription);
 
@@ -119,6 +119,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
   };
 
   this.onRunComplete = (): void => {
+    log.debug('Cleaning up...');
     finalizeScopes();
   };
 

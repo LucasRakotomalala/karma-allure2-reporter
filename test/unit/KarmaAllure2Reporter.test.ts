@@ -1,6 +1,7 @@
-import { ReporterRuntime, createDefaultWriter } from 'allure-js-commons/sdk/reporter';
-import KarmaAllure2ReporterPlugin from '../../src/index';
 import { TestResult } from 'allure-js-commons';
+import { ReporterRuntime, createDefaultWriter } from 'allure-js-commons/sdk/reporter';
+
+import KarmaAllure2ReporterPlugin from '../../src/index';
 import { Browser, KarmaAllure2ReporterConfig, KarmaTestResult } from '../../src/model';
 
 const KarmaAllure2Reporter = KarmaAllure2ReporterPlugin['reporter:allure'][1] as typeof KarmaAllure2Reporter;
