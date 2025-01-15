@@ -10,7 +10,7 @@ import {
   getThreadLabel,
 } from 'allure-js-commons/sdk/reporter';
 import { extractMetadataFromString } from 'allure-js-commons/sdk';
-import { KarmaAllure2ReporterConfig } from './model';
+import { Browser, KarmaAllure2ReporterConfig, KarmaTestResult } from './model';
 import { getDefaultAllureResultsDir, getDefaultFrameworkName } from './utils';
 
 function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2ReporterConfig, logger: any): void {
@@ -30,7 +30,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
   const scopeStack: Array<string> = [];
   let currentTestUuid: string | undefined;
 
-  this.onSpecComplete = (browser: { name: string }, result: any): void => {
+  this.onSpecComplete = (browser: Browser, result: Partial<KarmaTestResult>): void => {
     log.debug('Spec complete: ', result);
 
     const { description: resultDescription, suite: resultSuite = [] } = result || {};
@@ -50,7 +50,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
       subSuiteLabel = resultSuite.slice(2).join(' > ');
     }
 
-    const globalLabels = getEnvironmentLabels()?.filter((label) => !!label.value) || [];
+    const globalLabels = getEnvironmentLabels().filter((label) => !!label.value) || [];
     const initialLabels = [
       getLanguageLabel(),
       getFrameworkLabel(testFramework),
@@ -72,13 +72,13 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
       scopeStack.push(scopeUuid);
 
       const currentTestResult = {
-        name: metadata?.cleanTitle || testName,
+        name: metadata.cleanTitle || testName,
         fullName: `${parentSuite} > ${testName}`,
         stage: Stage.RUNNING,
         labels: [
           ...globalLabels,
           ...initialLabels,
-          ...metadata?.labels || [],
+          ...metadata.labels || [],
           { name: 'browser', value: browser.name },
           { name: 'package', value: packageName },
           { name: 'parentSuite', value: resultSuite[0] }
@@ -98,19 +98,19 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
     allureRuntime.updateTest(currentTestUuid, (test) => {
       test.stage = Stage.FINISHED;
 
-      if (result?.skipped) {
+      if (result.skipped) {
         test.status = Status.SKIPPED;
         test.statusDetails = {
           message: 'Test skipped',
           trace: 'Test execution was skipped by either \'xdescribe\' or \'xit\''
         };
-      } else if (result?.success) {
+      } else if (result.success) {
         test.status = Status.PASSED;
       } else {
         test.status = Status.FAILED;
         test.statusDetails = {
           message: 'Test failed. See the stack trace for details',
-          trace: result?.log?.join('\n') || 'No trace available'
+          trace: result.log?.join('\n') || 'No trace available'
         };
       }
     });

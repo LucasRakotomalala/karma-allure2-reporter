@@ -1,5 +1,7 @@
 import { ReporterRuntime, createDefaultWriter } from 'allure-js-commons/sdk/reporter';
 import KarmaAllure2ReporterPlugin from '../../src/index';
+import { TestResult } from 'allure-js-commons';
+import { Browser, KarmaAllure2ReporterConfig, KarmaTestResult } from '../../src/model';
 
 const KarmaAllure2Reporter = KarmaAllure2ReporterPlugin['reporter:allure'][1] as typeof KarmaAllure2Reporter;
 
@@ -15,7 +17,7 @@ jest.mock('allure-js-commons/sdk/reporter', () => ({
 
 describe('KarmaAllure2Reporter', () => {
   let baseReporterDecorator: jest.Mock;
-  let config: { resultsDir: string };
+  let config: KarmaAllure2ReporterConfig;
   let logger: { create: jest.Mock };
   let allureRuntimeMock: jest.Mocked<ReporterRuntime>;
 
@@ -69,8 +71,8 @@ describe('KarmaAllure2Reporter', () => {
 
   describe('onSpecComplete', () => {
     let reporter: any;
-    let browserMock: { name: string };
-    let resultMock: { description: string; suite: string[]; log: string[]; success: boolean; skipped: boolean };
+    let browserMock: Browser;
+    let resultMock: KarmaTestResult;
 
     beforeEach(() => {
       reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
@@ -109,7 +111,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test: any = {};
+      const test = {} as TestResult;
       updateCallback(test);
       expect(test.status).toEqual('passed');
       expect(test.stage).toEqual('finished');
@@ -124,7 +126,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test: any = {};
+      const test = {} as TestResult;
       updateCallback(test);
       expect(test.status).toEqual('skipped');
       expect(test.stage).toEqual('finished');
@@ -142,7 +144,7 @@ describe('KarmaAllure2Reporter', () => {
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
-      const test: any = {};
+      const test = {} as TestResult;
       updateCallback(test);
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
