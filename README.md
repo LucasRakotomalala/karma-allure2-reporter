@@ -23,6 +23,12 @@ For configuration details see [Allure Report Documentation](https://allurereport
 // karma.conf.js
 module.exports = function (config) {
   config.set({
+    plugins: [
+      'karma-allure2-reporter'
+    ],
+
+    reporters: ['allure'],
+
     allureReporter: {
       resultsDir: 'allure-results' // output directory for the allure report - can be omitted (default: allure-results)
     }
@@ -36,6 +42,12 @@ module.exports = function (config) {
 // karma.conf.js
 module.exports = function (config) {
   config.set({
+    plugins: [
+      'karma-allure2-reporter'
+    ],
+
+    reporters: ['allure'],
+
     allureReporter: {
       customOptions: {
         projectLanguage: 'javascript', // by default 'javascript'
@@ -46,6 +58,14 @@ module.exports = function (config) {
 };
 ```
 
+You can pass list of reporters as a CLI argument too:
+
+```bash
+karma start --reporters allure
+```
+
 ---
+
+For more information about Allure see the [Allure core](https://github.com/allure-framework/allure) project.
 
 For more information on Karma see the [homepage](https://karma-runner.github.io).
