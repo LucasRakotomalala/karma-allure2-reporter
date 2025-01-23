@@ -21,7 +21,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
   const { resultsDir = getDefaultAllureResultsDir(), customOptions = {}, ...reporterOptions } = config || {};
   log.debug('Allure 2 reporter results directory: ', resultsDir);
 
-  const { projectLanguage, testFramework = getDefaultFrameworkName(), parentSuitePrefix } = customOptions;
+  const { projectLanguage, testFramework = getDefaultFrameworkName(), packageLabel, parentSuiteLabel } = customOptions;
   log.debug('Allure 2 reporter custom options: ', JSON.stringify(customOptions, undefined, 2));
 
   const allureRuntime = new ReporterRuntime({
@@ -80,8 +80,8 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
           ...initialLabels,
           ...metadata.labels || [],
           { name: 'browser', value: browser.name },
-          { name: 'package', value: packageName },
-          { name: 'parentSuite', value: `${parentSuitePrefix ?? ''}${resultSuite[0]}` }
+          { name: 'package', value: `${packageLabel?.prefix ?? ''}${packageName}${packageLabel?.suffix ?? ''}` },
+          { name: 'parentSuite', value: `${parentSuiteLabel?.prefix ?? ''}${resultSuite[0]}${parentSuiteLabel?.suffix ?? ''}` }
         ]
       };
 

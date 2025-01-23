@@ -16,10 +16,16 @@ export interface KarmaTestResult {
   [key: string]: unknown;
 }
 
+export interface LabelAffix {
+  prefix: string;
+  suffix: string;
+}
+
 export interface KarmaAllure2ReporterConfigCustomOptions {
   projectLanguage: string;
   testFramework: string;
-  parentSuitePrefix: string;
+  parentSuiteLabel: Partial<LabelAffix>;
+  packageLabel: Partial<LabelAffix>;
 }
 
 export interface KarmaAllure2ReporterConfig extends ReporterConfig {
