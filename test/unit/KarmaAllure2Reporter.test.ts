@@ -167,8 +167,8 @@ describe('KarmaAllure2Reporter', () => {
       expect(test.statusDetails.trace).toEqual('Test error');
     });
 
-    it('should apply customOptions.parentSuitePrefix to the parent suite label', () => {
-      config = {
+    it('should apply customOptions.parentSuitePrefix to the parent suite label - string', () => {
+      const config = {
         customOptions: {
           parentSuitePrefix: 'Prefix: ',
         },
@@ -187,6 +187,32 @@ describe('KarmaAllure2Reporter', () => {
           stage: 'running',
           labels: expect.arrayContaining([
             { name: 'parentSuite', value: 'Prefix: My Suite' },
+          ]),
+        }),
+        expect.any(Array)
+      );
+    });
+
+    it('should apply customOptions.parentSuitePrefix to the parent suite label - other type', () => {
+      const config = {
+        customOptions: {
+          parentSuitePrefix: 1,
+        },
+      } as unknown as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'parentSuite', value: '1My Suite' },
           ]),
         }),
         expect.any(Array)

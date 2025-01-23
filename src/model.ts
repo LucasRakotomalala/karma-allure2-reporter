@@ -16,10 +16,12 @@ export interface KarmaTestResult {
   [key: string]: unknown;
 }
 
+export interface KarmaAllure2ReporterConfigCustomOptions {
+  projectLanguage: string;
+  testFramework: string;
+  parentSuitePrefix: string;
+}
+
 export interface KarmaAllure2ReporterConfig extends ReporterConfig {
-  customOptions?: {
-    projectLanguage?: string;
-    testFramework?: string;
-    parentSuitePrefix?: string;
-  };
+  customOptions?: Partial<KarmaAllure2ReporterConfigCustomOptions>;
 }
