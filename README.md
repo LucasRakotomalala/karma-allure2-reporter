@@ -52,7 +52,14 @@ module.exports = function (config) {
       customOptions: {
         projectLanguage: 'javascript', // by default 'javascript'
         testFramework: 'jasmine', // by default 'jasmine'
-        parentSuitePrefix: '' // by default it is an empty string
+        packageLabel: { // add affixes to 'package' label. By default it is undefined
+          prefix: 'example.', // by default it is an undefined
+          suffix: '.example' // by default it is an undefined
+        }
+        parentSuiteLabel: { // add affixes to 'parentSuite' label. By default it is undefined
+          prefix: 'example.', // by default it is an undefined
+          suffix: '.example' // by default it is an undefined
+        }
       }
     }
   });
