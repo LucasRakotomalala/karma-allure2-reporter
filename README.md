@@ -51,7 +51,8 @@ module.exports = function (config) {
     allureReporter: {
       customOptions: {
         projectLanguage: 'javascript', // by default 'javascript'
-        testFramework: 'jasmine' // by default 'jasmine'
+        testFramework: 'jasmine', // by default 'jasmine'
+        parentSuitePrefix: '' // by default it is an empty string
       }
     }
   });

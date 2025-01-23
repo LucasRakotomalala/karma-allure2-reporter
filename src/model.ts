@@ -20,5 +20,6 @@ export interface KarmaAllure2ReporterConfig extends ReporterConfig {
   customOptions?: {
     projectLanguage?: string;
     testFramework?: string;
+    parentSuitePrefix?: string;
   };
 }

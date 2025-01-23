@@ -106,14 +106,18 @@ describe('KarmaAllure2Reporter', () => {
     });
 
     it('should update test status as passed', () => {
+      allureRuntimeMock.startScope.mockReturnValue('scope-uuid');
       allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {} as TestResult;
+
       updateCallback(test);
+
       expect(test.status).toEqual('passed');
       expect(test.stage).toEqual('finished');
     });
@@ -121,14 +125,19 @@ describe('KarmaAllure2Reporter', () => {
     it('should update test status as skipped', () => {
       resultMock.success = false;
       resultMock.skipped = true;
+
+      allureRuntimeMock.startScope.mockReturnValue('scope-uuid');
       allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {} as TestResult;
+
       updateCallback(test);
+
       expect(test.status).toEqual('skipped');
       expect(test.stage).toEqual('finished');
       expect(test.statusDetails.message).toEqual('Test skipped');
@@ -139,18 +148,49 @@ describe('KarmaAllure2Reporter', () => {
       resultMock.success = false;
       resultMock.skipped = false;
       resultMock.log = ['Test error'];
+
+      allureRuntimeMock.startScope.mockReturnValue('scope-uuid');
       allureRuntimeMock.startTest.mockReturnValue('test-uuid');
 
       reporter.onSpecComplete(browserMock, resultMock);
 
       expect(allureRuntimeMock.updateTest).toHaveBeenCalledWith('test-uuid', expect.any(Function));
+
       const updateCallback = allureRuntimeMock.updateTest.mock.calls[0][1];
       const test = {} as TestResult;
+
       updateCallback(test);
+
       expect(test.status).toEqual('failed');
       expect(test.stage).toEqual('finished');
       expect(test.statusDetails.message).toEqual('Test failed. See the stack trace for details');
       expect(test.statusDetails.trace).toEqual('Test error');
+    });
+
+    it('should apply customOptions.parentSuitePrefix to the parent suite label', () => {
+      config = {
+        customOptions: {
+          parentSuitePrefix: 'Prefix: ',
+        },
+      } as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'parentSuite', value: 'Prefix: My Suite' },
+          ]),
+        }),
+        expect.any(Array)
+      );
     });
   });
 
