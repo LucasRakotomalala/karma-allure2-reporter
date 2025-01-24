@@ -55,7 +55,7 @@ module.exports = function (config) {
         packageLabel: { // add affixes to 'package' label. By default it is undefined
           prefix: 'example.', // by default it is an undefined
           suffix: '.example' // by default it is an undefined
-        }
+        },
         parentSuiteLabel: { // add affixes to 'parentSuite' label. By default it is undefined
           prefix: 'example.', // by default it is an undefined
           suffix: '.example' // by default it is an undefined

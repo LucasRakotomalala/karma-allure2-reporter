@@ -278,6 +278,118 @@ describe('KarmaAllure2Reporter', () => {
         expect.any(Array)
       );
     });
+
+    it('should apply customOptions.packageLabel.prefix to the parent suite label - string', () => {
+      const config = {
+        customOptions: {
+          packageLabel: {
+            prefix: 'prefix.'
+          }
+        }
+      } as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'package', value: 'prefix.My Suite' },
+          ]),
+        }),
+        expect.any(Array)
+      );
+    });
+
+    it('should apply customOptions.packageLabel.prefix to the parent suite label - other type', () => {
+      const config = {
+        customOptions: {
+          packageLabel: {
+            prefix: 1
+          }
+        }
+      } as unknown as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'package', value: '1My Suite' },
+          ]),
+        }),
+        expect.any(Array)
+      );
+    });
+
+    it('should apply customOptions.packageLabel.suffix to the parent suite label - string', () => {
+      const config = {
+        customOptions: {
+          packageLabel: {
+            suffix: '.suffix'
+          }
+        }
+      } as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'package', value: 'My Suite.suffix' },
+          ]),
+        }),
+        expect.any(Array)
+      );
+    });
+
+    it('should apply customOptions.packageLabel.suffix to the parent suite label - other type', () => {
+      const config = {
+        customOptions: {
+          packageLabel: {
+            suffix: 1
+          }
+        }
+      } as unknown as KarmaAllure2ReporterConfig;
+
+      reporter = new KarmaAllure2Reporter(baseReporterDecorator, config, logger);
+
+      allureRuntimeMock.startTest.mockReturnValue('test-uuid');
+
+      reporter.onSpecComplete(browserMock, resultMock);
+
+      expect(allureRuntimeMock.startTest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'should pass',
+          fullName: 'My Suite > should pass',
+          stage: 'running',
+          labels: expect.arrayContaining([
+            { name: 'package', value: 'My Suite1' },
+          ]),
+        }),
+        expect.any(Array)
+      );
+    });
   });
 
   describe('onRunComplete', () => {
