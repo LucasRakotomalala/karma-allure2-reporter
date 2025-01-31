@@ -18,7 +18,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
 
   const log = logger.create('allure2-reporter');
 
-  const { resultsDir = getDefaultAllureResultsDir(), customOptions = {}, ...reporterOptions } = config || {};
+  const { resultsDir = getDefaultAllureResultsDir(), customOptions = {}, ...reporterOptions } = config ?? {};
   log.debug('Allure 2 reporter results directory: ', resultsDir);
 
   const { projectLanguage, testFramework = getDefaultFrameworkName(), packageLabel, parentSuiteLabel } = customOptions;
@@ -33,7 +33,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
   let currentTestUuid: string | undefined;
 
   this.onSpecComplete = (browser: Browser, result: Partial<KarmaTestResult>): void => {
-    const { description: resultDescription, suite: resultSuite = [] } = result || {};
+    const { description: resultDescription, suite: resultSuite = [] } = result ?? {};
     const metadata = extractMetadataFromString(resultDescription);
 
     const testName = resultDescription;
@@ -50,7 +50,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
       subSuiteLabel = resultSuite.slice(2).join(' > ');
     }
 
-    const globalLabels = getEnvironmentLabels().filter((label) => !!label.value) || [];
+    const globalLabels = getEnvironmentLabels().filter((label) => !!label.value) ?? [];
     const initialLabels = [
       getLanguageLabel(),
       getFrameworkLabel(testFramework),
@@ -72,17 +72,18 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
       scopeStack.push(scopeUuid);
 
       const currentTestResult = {
-        name: metadata.cleanTitle || testName,
+        name: metadata.cleanTitle ?? testName,
         fullName: `${parentSuite} > ${testName}`,
         stage: Stage.RUNNING,
         labels: [
           ...globalLabels,
           ...initialLabels,
-          ...metadata.labels || [],
+          ...metadata.labels ?? [],
           { name: 'browser', value: browser.name },
           { name: 'package', value: `${packageLabel?.prefix ?? ''}${packageName}${packageLabel?.suffix ?? ''}` },
           { name: 'parentSuite', value: `${parentSuiteLabel?.prefix ?? ''}${resultSuite[0]}${parentSuiteLabel?.suffix ?? ''}` }
-        ]
+        ],
+        ...metadata.links ?? []
       };
 
       if (suiteLabel) {
@@ -110,7 +111,7 @@ function KarmaAllure2Reporter(baseReporterDecorator: any, config: KarmaAllure2Re
         test.status = Status.FAILED;
         test.statusDetails = {
           message: 'Test failed. See the stack trace for details',
-          trace: result.log?.join('\n') || 'No trace available'
+          trace: result.log?.join('\n') ?? 'No trace available'
         };
       }
     });
